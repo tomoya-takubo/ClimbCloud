@@ -8,9 +8,12 @@ public class PlayerController : MonoBehaviour
     public float jumpForce = 680.0f;
     public float maxWalkForce = 2.0f;
     public float walkForce = 30.0f;
+    public LayerMask layerMask;
 
     Rigidbody2D rigid2D;
     Animator animator;
+    bool isGrounded;    //接地判定用
+
 
     // Start is called before the first frame update
     void Start()
@@ -70,11 +73,25 @@ public class PlayerController : MonoBehaviour
             SceneManager.LoadScene("GameScene");
         }
 
+        //着地する
+        isGrounded = Physics2D.Linecast(
+            transform.position + transform.up * 0.3f,
+            transform.position - transform.up * 0.05f,
+            layerMask);
+        if(animator.GetCurrentAnimatorStateInfo(0).IsName("Jump")
+            && isGrounded)
+        {
+            this.animator.SetTrigger("LandTrigger");
+        }
+
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log("ゴール");
-        SceneManager.LoadScene("ClearScene");
+        if(collision.tag == "Flag")
+        {
+            Debug.Log("ゴール");
+            SceneManager.LoadScene("ClearScene");
+        }
     }
 }
